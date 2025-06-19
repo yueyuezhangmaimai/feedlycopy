@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: { articleId: string } }
+  context: any
 ): Promise<Response> {
   try {
     const { articleId } = context.params;
