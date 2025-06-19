@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id         String   @id @default(uuid())
+  name       String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feeds      Feed[]
+}
+
+model Feed {
+  id            String    @id @default(uuid())
+  groupId       String?
+  group         Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  url           String    @unique
+  title         String?
+  description   String?
+  link          String?
+  lastFetched   DateTime?
+  status        String    @default("active") // active, error, inactive
+  articleCount  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  articles      Article[]
+}
+
+model Article {
+  id        String    @id @default(uuid())
+  title     String
+  link      String    @unique
+  pubDate   DateTime?
+  author    String?
+  content   String?
+  feedId    String
+  feed      Feed      @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  read      Boolean   @default(false)
+
+  @@index([feedId])
+}
